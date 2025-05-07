@@ -1,0 +1,213 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<OpenSCENARIO>
+  <FileHeader revMajor="1" revMinor="1" date="2021-08-24T10:00:00" description="Demonstrate ACC controller" author="esmini-team"/>
+  <CatalogLocations>
+    <VehicleCatalog>
+      <Directory path="D:/TUK/25-1/BusinessAnalatics/InsertDisturbance_RB/src/esmini/Catalogs/Vehicles"/>
+    </VehicleCatalog>
+    <ControllerCatalog>
+      <Directory path="D:/TUK/25-1/BusinessAnalatics/InsertDisturbance_RB/src/esmini/Catalogs/Controllers"/>
+    </ControllerCatalog>
+  </CatalogLocations>
+  <RoadNetwork>
+    <LogicFile filepath="D:/TUK/25-1/BusinessAnalatics/InsertDisturbance_RB/src/esmini/straight_500m.xodr"/>
+  </RoadNetwork>
+  <Entities>
+    <ScenarioObject name="Ego">
+      <CatalogReference catalogName="VehicleCatalog" entryName="car_white"/>
+      <ObjectController>
+        <Controller name="ACCController">
+          <Properties>
+            <Property name="timeGap" value="1.0"/>
+            <Property name="mode" value="override"/>
+            <Property name="setSpeed" value="33.3"/>
+          </Properties>
+        </Controller>
+      </ObjectController>
+    </ScenarioObject>
+    <ScenarioObject name="OBJ">
+      <MiscObject mass="0" miscObjectCategory="obstacle" name="PE_Firewall_Orange">
+        <BoundingBox>
+          <Center x="0.5" y="0.0" z="0.5"/>
+          <Dimensions width="1.0" length="1.0" height="1.0"/>
+        </BoundingBox>
+        <Properties>
+          <Property name="scale_x" value="1.0"/>
+          <Property name="scale_y" value="1.0"/>
+          <Property name="scale_z" value="1.0"/>
+        </Properties>
+      </MiscObject>
+    </ScenarioObject>
+    <ScenarioObject name="OBJ2">
+      <MiscObject mass="0" miscObjectCategory="obstacle" name="PE_Firewall_Orange">
+        <BoundingBox>
+          <Center x="0.5" y="0.0" z="0.5"/>
+          <Dimensions width="1.0" length="1.0" height="1.0"/>
+        </BoundingBox>
+        <Properties>
+          <Property name="scale_x" value="1.0"/>
+          <Property name="scale_y" value="1.0"/>
+          <Property name="scale_z" value="1.0"/>
+        </Properties>
+      </MiscObject>
+    </ScenarioObject>
+  </Entities>
+  <Storyboard>
+    <Init>
+      <Actions>
+        <Private entityRef="Ego">
+          <PrivateAction>
+            <TeleportAction>
+              <Position>
+                <LanePosition roadId="1" laneId="-1" offset="0" s="0"/>
+              </Position>
+            </TeleportAction>
+          </PrivateAction>
+          <PrivateAction>
+            <LongitudinalAction>
+              <SpeedAction>
+                <SpeedActionDynamics dynamicsShape="step" dynamicsDimension="time" value="0.0"/>
+                <SpeedActionTarget>
+                  <AbsoluteTargetSpeed value="17"/>
+                </SpeedActionTarget>
+              </SpeedAction>
+            </LongitudinalAction>
+          </PrivateAction>
+          <PrivateAction>
+            <ControllerAction>
+              <ActivateControllerAction longitudinal="true" lateral="false"/>
+            </ControllerAction>
+          </PrivateAction>
+        </Private>
+        <Private entityRef="OBJ">
+          <PrivateAction>
+            <TeleportAction>
+              <Position>
+                <RelativeObjectPosition entityRef="Ego" dx="30" dy="0" dz="0"/>
+              </Position>
+            </TeleportAction>
+          </PrivateAction>
+        </Private>
+        <Private entityRef="OBJ2">
+          <PrivateAction>
+            <TeleportAction>
+              <Position>
+                <RelativeObjectPosition entityRef="Ego" dx="50" dy="0" dz="0"/>
+              </Position>
+            </TeleportAction>
+          </PrivateAction>
+        </Private>
+      </Actions>
+    </Init>
+    <Story name="CutInAndBrakeStory">
+      <Act name="CutInAndBrakeAct">
+        <ManeuverGroup maximumExecutionCount="1" name="EgoSpeedChange">
+          <Actors selectTriggeringEntities="false">
+            <EntityRef entityRef="Ego"/>
+          </Actors>
+          <Maneuver name="EgoSpeedManeuver">
+            <Event name="EgoSpeedEvent" priority="overwrite">
+              <Action name="EgoSpeedAction">
+                <PrivateAction>
+                  <LongitudinalAction>
+                    <SpeedAction>
+                      <SpeedActionDynamics dynamicsShape="step" value="0" dynamicsDimension="time"/>
+                      <SpeedActionTarget>
+                        <AbsoluteTargetSpeed value="1"/>
+                      </SpeedActionTarget>
+                    </SpeedAction>
+                  </LongitudinalAction>
+                </PrivateAction>
+              </Action>
+              <StartTrigger>
+                <ConditionGroup>
+                  <Condition name="EgoSpeedCondition" delay="0" conditionEdge="rising">
+                    <ByValueCondition>
+                      <SimulationTimeCondition value="2" rule="greaterThan"/>
+                    </ByValueCondition>
+                  </Condition>
+                </ConditionGroup>
+              </StartTrigger>
+            </Event>
+            <Event name="EgoSpeedEvent" priority="overwrite">
+              <Action name="EgoSpeedAction">
+                <PrivateAction>
+                  <LongitudinalAction>
+                    <SpeedAction>
+                      <SpeedActionDynamics dynamicsShape="step" value="0" dynamicsDimension="time"/>
+                      <SpeedActionTarget>
+                        <AbsoluteTargetSpeed value="8.3"/>
+                      </SpeedActionTarget>
+                    </SpeedAction>
+                  </LongitudinalAction>
+                </PrivateAction>
+              </Action>
+              <StartTrigger>
+                <ConditionGroup>
+                  <Condition name="EgoSpeedCondition" delay="0" conditionEdge="rising">
+                    <ByValueCondition>
+                      <SimulationTimeCondition value="10" rule="greaterThan"/>
+                    </ByValueCondition>
+                  </Condition>
+                </ConditionGroup>
+              </StartTrigger>
+            </Event>
+          </Maneuver>
+        </ManeuverGroup>
+        <StartTrigger>
+          <ConditionGroup>
+            <Condition name="CutInActStart" delay="0" conditionEdge="none">
+              <ByValueCondition>
+                <SimulationTimeCondition value="0" rule="greaterThan"/>
+              </ByValueCondition>
+            </Condition>
+          </ConditionGroup>
+        </StartTrigger>
+        <ManeuverGroup maximumExecutionCount="1" name="ManueverGroup_Ego_event">
+          <Actors selectTriggeringEntities="false">
+            <EntityRef entityRef="Ego"/>
+          </Actors>
+          <Maneuver name="Maneuver_Ego_event">
+            <Event maximumExecutionCount="1" name="Ego_event" priority="overwrite">
+              <Action name="Ego_lc">
+                <PrivateAction>
+                  <LateralAction>
+                    <LaneChangeAction targetLaneOffset="1">
+                      <LaneChangeActionDynamics dynamicsDimension="distance" dynamicsShape="step" value="5"/>
+                      <LaneChangeTarget>
+                        <RelativeTargetLane entityRef="Ego" value="1"/>
+                      </LaneChangeTarget>
+                    </LaneChangeAction>
+                  </LateralAction>
+                </PrivateAction>
+              </Action>
+              <StartTrigger>
+                <ConditionGroup>
+                  <Condition conditionEdge="rising" delay="0" name="Ego_condition">
+                    <ByEntityCondition>
+                      <TriggeringEntities triggeringEntitiesRule="all">
+                        <EntityRef entityRef="Ego"/>
+                      </TriggeringEntities>
+                      <EntityCondition>
+                        <RelativeDistanceCondition coordinateSystem="entity" entityRef="OBJ" freespace="true" relativeDistanceType="euclidianDistance" routingAlgorithm="assignedRoute" rule="lessThan" value="15.75"/>
+                      </EntityCondition>
+                    </ByEntityCondition>
+                  </Condition>
+                </ConditionGroup>
+              </StartTrigger>
+            </Event>
+          </Maneuver>
+        </ManeuverGroup>
+      </Act>
+    </Story>
+    <StopTrigger>
+      <ConditionGroup>
+        <Condition name="EndScenario" delay="0" conditionEdge="none">
+          <ByValueCondition>
+            <SimulationTimeCondition value="10" rule="greaterThan"/>
+          </ByValueCondition>
+        </Condition>
+      </ConditionGroup>
+    </StopTrigger>
+  </Storyboard>
+</OpenSCENARIO>
