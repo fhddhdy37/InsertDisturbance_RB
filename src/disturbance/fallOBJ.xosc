@@ -1,16 +1,16 @@
 <OpenSCENARIO xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <ScenarioObject name="OBJ">
-        <MiscObject mass="0" miscObjectCategory="obstacle" name="PE_Firewall_Orange">
-            <BoundingBox>
-                <Center x="0.5" y="0.0" z="0.5" />
-                <Dimensions width="1.0" length="1.0" height="1.0" />
-            </BoundingBox>
-            <Properties>
-                <Property name="scale_x" value="1.0"/>
-                <Property name="scale_y" value="1.0"/>
-                <Property name="scale_z" value="1.0"/>
-            </Properties>
-        </MiscObject>
+            <MiscObject mass="0" miscObjectCategory="obstacle" name="PE_Firewall_Orange">
+                <BoundingBox>
+                    <Center x="0.5" y="0.0" z="0.5" />
+                    <Dimensions width="1.0" length="1.0" height="1.0" />
+                </BoundingBox>
+                <Properties>
+                    <Property name="scale_x" value="1.0"/>
+                    <Property name="scale_y" value="1.0"/>
+                    <Property name="scale_z" value="1.0"/>
+                </Properties>
+            </MiscObject>
     </ScenarioObject>
     <Private entityRef="OBJ">
         <PrivateAction>
@@ -26,7 +26,7 @@
             <EntityRef entityRef="Ego"/>
         </Actors>
         <Maneuver name="Maneuver_Ego_event">
-            <Event maximumExecutionCount="1" name="Ego_event" priority="overwrite">
+            <Event maximumExecutionCount="1" name="Ego_event" priority="override">
                 <Action name="Ego_lc">
                     <PrivateAction>
                         <LateralAction>

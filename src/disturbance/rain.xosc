@@ -2,7 +2,7 @@
     <ManeuverGroup maximumExecutionCount="1" name="weather_maneuver_group">
         <Actors selectTriggeringEntities="false"/>
         <Maneuver name="Maneuver_weather_event">
-            <Event maximumExecutionCount="1" name="weather_event" priority="overwrite">
+            <Event maximumExecutionCount="1" name="weather_event" priority="override">
                 <Action name="rainy_action">
                     <GlobalAction>
                         <EnvironmentAction>

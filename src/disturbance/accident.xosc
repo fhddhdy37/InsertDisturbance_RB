@@ -1,0 +1,62 @@
+<OpenSCENARIO>
+<ScenarioObject name="A1">
+    <CatalogReference catalogName="VehicleCatalog" entryName="car_blue"/>
+</ScenarioObject>
+<ScenarioObject name="A2">
+    <CatalogReference catalogName="VehicleCatalog" entryName="car_red"/>
+</ScenarioObject>
+<Private entityRef="A1">
+    <PrivateAction>
+        <TeleportAction>
+            <Position>
+                <RelativeObjectPosition entityRef="Ego" dx="100" dy="0" dz="0" />
+            </Position>
+        </TeleportAction>
+    </PrivateAction>
+</Private>
+<Private entityRef="A2">
+    <PrivateAction>
+        <TeleportAction>
+            <Position>
+                <RelativeObjectPosition entityRef="A1" dx="3" dy="0" dz="0" />
+            </Position>
+        </TeleportAction>
+    </PrivateAction>
+</Private>
+<ManeuverGroup maximumExecutionCount="1" name="AccidentStop">
+    <Actors selectTriggeringEntities="false">
+        <EntityRef entityRef="Ego"/>
+    </Actors>
+    <Maneuver name="AccidentStopManeuver">
+        <Event name="AccidentStopEvent" priority="override">
+            <Action name="AccidentStopAction">
+            <PrivateAction>
+                <LongitudinalAction>
+                    <SpeedAction>
+                        <SpeedActionDynamics dynamicsShape="step" value="0" dynamicsDimension="time"/>
+                        <SpeedActionTarget>
+                        <AbsoluteTargetSpeed value="0"/>
+                        </SpeedActionTarget>
+                    </SpeedAction>
+                </LongitudinalAction>
+            </PrivateAction>
+            </Action>
+            <StartTrigger>
+            <ConditionGroup>
+                <Condition name="EgoStopCondition" delay="0" conditionEdge="rising">
+                    <ByEntityCondition>
+                        <TriggeringEntities triggeringEntitiesRule="any">
+                            <EntityRef entityRef="A1"/>
+                            <EntityRef entityRef="A2"/>
+                        </TriggeringEntities>
+                        <EntityCondition>
+                            <RelativeDistanceCondition entityRef="Ego" coordinateSystem="entity" freespace="true" relativeDistanceType="euclidianDistance" routingAlgorithm="assignedRoute" rule="lessThan" value="30"/>
+                        </EntityCondition>
+                    </ByEntityCondition>
+                </Condition>
+            </ConditionGroup>
+            </StartTrigger>      
+        </Event>
+    </Maneuver>
+</ManeuverGroup>
+</OpenSCENARIO>

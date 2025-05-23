@@ -7,7 +7,7 @@ CoT, few-shot, least-to-most
 """
 
 
-from config import XSD_FILE
+from package import XSD_FILE
 
 XSD = "XML Schema data"
 with open(XSD_FILE, "r") as f:

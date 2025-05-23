@@ -1,5 +1,6 @@
-from config import *
-from prompts import PROMPT_SET
+from package import *
+from package.prompts import PROMPT_SET
+
 from lxml import etree as ET
 import xmlschema
 import re
@@ -14,11 +15,11 @@ class ResponseData(BaseModel):
     data: list[MetaData]
 
 class Controller:
-    def __init__(self, input_file, disturbance_file, output_file, *args):
+    def __init__(self, input_file, output_file, *args):
         """
         입/출력 자원을 효율적으로 관리하기 위해 클래스로 정의
-        기본적인 경로 및 키값에 관한 세팅은 config.py에 정의
-        시스템 프롬프트 및 프롬프팅 기법에 관한 세팅은 prompts.py에 정의
+        기본적인 경로 및 키값에 관한 세팅은 `config.py`에 정의
+        시스템 프롬프트 및 프롬프팅 기법에 관한 세팅은 `prompts.py`에 정의
 
         input_path : 입력 시나리오의 경로
         disturbance_path : 생성된 외란 시나리오의 경로
@@ -34,9 +35,9 @@ class Controller:
         user_prompt : user 프롬프트에서 적용할 프롬프팅 기법
         """
 
-        self.input_path = SRC_DIR / input_file
-        self.disturbance_path = SRC_DIR / disturbance_file
-        self.output_path = SRC_DIR / output_file
+        self.input_path = SCENE_DIR / input_file
+        self.disturbance_path = TMP_DIR / "test_disturbance.xosc"
+        self.output_path = OUT_DIR / output_file
         self.schema = xmlschema.XMLSchema(XSD_FILE)
 
         self.in_tree = ET.parse(self.input_path)
@@ -81,7 +82,7 @@ class Controller:
 
         ET.indent(self.dis_tree, "  ")
         self.dis_tree.write(self.disturbance_path, pretty_print=True, encoding="utf-8", xml_declaration=True)
-        print(f"Output written to {self.disturbance_path}")
+        print(f"Disturbance file written to {self.disturbance_path}")
 
     def insert_scenario(self):
         """
@@ -89,13 +90,17 @@ class Controller:
         """
         
         for child in self.dis_root:
-            elem = self.in_root.find(f".//{RULE[child.tag]}/{child.tag}")
+            try:
+                elem = self.in_root.find(f".//{RULE[child.tag]}/{child.tag}")
+            except KeyError:
+                elem = self.in_root.find(f".//{child.tag}")
+
             if elem is not None:
                 elem.getparent().append(child)
         
         ET.indent(self.in_root, space="  ")
         self.in_tree.write(self.output_path, pretty_print=True, encoding="utf-8", xml_declaration=True)
-        print(f"Output written to {self.output_path}")
+        print(f"Scenario file written to {self.output_path}")
 
     def _extract_xml_blocks(self, text):
         """

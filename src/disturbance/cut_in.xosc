@@ -1,0 +1,66 @@
+<OpenSCENARIO>
+<ScenarioObject name="A1">
+    <CatalogReference catalogName="VehicleCatalog" entryName="car_blue"/>
+</ScenarioObject>
+<Private entityRef="A1">
+    <PrivateAction>
+        <TeleportAction>
+            <Position>
+            <LanePosition roadId="1" laneId="-2" offset="0" s="0"/>
+            </Position>
+        </TeleportAction>
+    </PrivateAction>
+    <PrivateAction>
+        <LongitudinalAction>
+            <SpeedAction>
+            <SpeedActionDynamics dynamicsShape="step" dynamicsDimension="time" value="0.0"/>
+            <SpeedActionTarget>
+                <AbsoluteTargetSpeed value="33"/>
+            </SpeedActionTarget>
+            </SpeedAction>
+        </LongitudinalAction>
+    </PrivateAction>
+</Private>
+<ManeuverGroup maximumExecutionCount="1" name="CutInManeuverGroup">
+    <Actors selectTriggeringEntities="false">
+        <EntityRef entityRef="A1"/>
+    </Actors>
+    <Maneuver name="CutInManeuver">
+        <Event name="CutInEvent" priority="override">
+            <Action name="CutInAction_SpeedUp">
+            <PrivateAction>
+                <LongitudinalAction>
+                    <SpeedAction>
+                        <SpeedActionDynamics dynamicsShape="step" value="0" dynamicsDimension="time"/>
+                        <SpeedActionTarget>
+                        <AbsoluteTargetSpeed value="40"/>
+                        </SpeedActionTarget>
+                    </SpeedAction>
+                </LongitudinalAction>
+            </PrivateAction>
+            </Action>
+            <Action name="CutInAction_CutIn">
+            <PrivateAction>
+                <LateralAction>
+                    <LaneChangeAction targetLaneOffset="0">
+                        <LaneChangeActionDynamics dynamicsDimension="time" dynamicsShape="linear" value="1"/>
+                        <LaneChangeTarget>
+                        <RelativeTargetLane entityRef="Ego" value="0"/>
+                        </LaneChangeTarget>
+                    </LaneChangeAction>
+                </LateralAction>
+            </PrivateAction>
+            </Action>
+            <StartTrigger>
+            <ConditionGroup>
+                <Condition name="CutInCondition" conditionEdge="rising" delay="0">
+                    <ByValueCondition>
+                        <SimulationTimeCondition value="1" rule="greaterThan"/>
+                    </ByValueCondition>
+                </Condition>
+            </ConditionGroup>
+            </StartTrigger>
+        </Event>
+    </Maneuver>
+</ManeuverGroup>
+</OpenSCENARIO>

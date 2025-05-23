@@ -1,0 +1,75 @@
+<OpenSCENARIO xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <ScenarioObject name="pedestrian">
+      <Pedestrian mass="70" pedestrianCategory="pedestrian" name="jgk">
+        <BoundingBox>
+            <Center x="0.0" y="0.0" z="0.9" />
+            <Dimensions width="0.6" length="0.6" height="1.8" />
+        </BoundingBox>
+        <Properties>
+            <Property name="scale_x" value="1.0"/>
+            <Property name="scale_y" value="1.0"/>
+            <Property name="scale_z" value="1.0"/>
+        </Properties>
+    </Pedestrian>
+</ScenarioObject>
+
+    <Private entityRef="pedestrian">
+      <PrivateAction>
+        <TeleportAction>
+            <Position>
+                <WorldPosition x="5.0" y="0.0" z="50.0" h="270.0" />
+            </Position>
+        </TeleportAction>
+      </PrivateAction>
+    </Private>
+    
+<ManeuverGroup maximumExecutionCount="1" name="ManueverGroup_Pedestrian_event">
+    <Actors selectTriggeringEntities="false">
+        <EntityRef entityRef="pedestrian"/>
+    </Actors>
+    <Maneuver name="Manuever_Pedestrian_event">
+        <Event maximumExecutionCount="1" name="start_crossing" priority="override">
+            <Action name="cross_walk">
+                <PrivateAction>
+                    <RoutingAction>
+                        <FollowTrajectoryAction>
+                            <Trajectory closed="false" name="walk_path">
+                                <Shape>
+                                    <Polyline>
+                                        <Vertex>
+                                            <Position>
+                                                <WorldPosition x="5.0" y="0.0" z="50.0" />
+                                            </Position>
+                                        </Vertex>
+                                        <Vertex>
+                                            <Position>
+                                                <WorldPosition x="-5.0" y="0.0" z="50.0" />
+                                            </Position>
+                                        </Vertex>
+                                    </Polyline>
+                                </Shape>
+                            </Trajectory>
+                            <TimeReference>
+                                <None/>
+                            </TimeReference>
+                            <TrajectoryFollowingMode followingMode="position"/>
+                        </FollowTrajectoryAction>
+                    </RoutingAction>
+                </PrivateAction>
+            </Action>            
+            <StartTrigger>
+                <ConditionGroup>
+                    <Condition name="after6sec" delay="0" conditionEdge="rising">
+                        <ByValueCondition>
+                            <SimulationTimeCondition value="2" rule="greaterThan"/>
+                        </ByValueCondition>
+                    </Condition>
+                </ConditionGroup>
+            </StartTrigger>
+
+        </Event>
+    </Maneuver>
+</ManeuverGroup>
+
+
+</OpenSCENARIO>

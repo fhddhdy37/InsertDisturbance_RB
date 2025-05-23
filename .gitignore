@@ -173,6 +173,9 @@ poetry.toml
 # LSP config files
 pyrightconfig.json
 
-*.xosc
-*.xodr
+trash/
 generated/
+log.txt
+
+test_*.py
+test_*.xosc

@@ -1,0 +1,9 @@
+<OpenSCENARIO>
+<GlobalAction>
+    <EnvironmentAction>
+    <Environment name="blackice">
+        <RoadCondition frictionScaleFactor="0" wetness="wetWithPuddles"/>
+    </Environment>
+    </EnvironmentAction>
+</GlobalAction>
+</OpenSCENARIO>

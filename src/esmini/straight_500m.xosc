@@ -7,14 +7,17 @@
                author="esmini-team"/>
    <CatalogLocations>
       <VehicleCatalog>
-        <Directory path="D:/TUK/25-1/BusinessAnalatics/InsertDisturbance_RB/src/esmini/Catalogs/Vehicles"/>
+        <Directory path="./src/esmini/Catalogs/Vehicles"/>
       </VehicleCatalog>
       <ControllerCatalog>
-	     <Directory path="D:/TUK/25-1/BusinessAnalatics/InsertDisturbance_RB/src/esmini/Catalogs/Controllers"/>
+	     <Directory path="./src/esmini/Catalogs/Controllers"/>
 	  </ControllerCatalog>
+     <PedestrianCatalog>
+	     <Directory path="./src/esmini/Catalogs/Pedestrians"/>
+	  </PedestrianCatalog>
    </CatalogLocations>
    <RoadNetwork>
-      <LogicFile filepath="D:/TUK/25-1/BusinessAnalatics/InsertDisturbance_RB/src/esmini/straight_500m.xodr"/>
+      <LogicFile filepath="./src/esmini/straight_500m.xodr"/>
    </RoadNetwork>
    <Entities>
       <ScenarioObject name="Ego">
@@ -66,7 +69,7 @@
                   <EntityRef entityRef="Ego"/>
                </Actors>
                <Maneuver name="EgoSpeedManeuver">
-                  <Event name="EgoSpeedEvent" priority="overwrite">
+                  <Event name="EgoSpeedEvent" priority="override">
                      <Action name="EgoSpeedAction">
                         <PrivateAction>
                            <LongitudinalAction>
@@ -89,7 +92,7 @@
                         </ConditionGroup>
                      </StartTrigger>
                   </Event>
-                  <Event name="EgoSpeedEvent" priority="overwrite">
+                  <Event name="EgoSpeedEvent" priority="override">
                      <Action name="EgoSpeedAction">
                         <PrivateAction>
                            <LongitudinalAction>
@@ -129,7 +132,7 @@
          <ConditionGroup>
                <Condition name="EndScenario" delay="0" conditionEdge="none">
                   <ByValueCondition>
-                     <SimulationTimeCondition value="10" rule="greaterThan" />
+                     <SimulationTimeCondition value="60" rule="greaterThan" />
                   </ByValueCondition>
                </Condition>
          </ConditionGroup>
