@@ -10,92 +10,205 @@ CoT, few-shot, least-to-most
 from package import XSD_FILE
 
 XSD = "XML Schema data"
-with open(XSD_FILE, "r") as f:
+with open(XSD_FILE, "r",encoding='utf-8') as f:
     XSD = f.read()
 
 # 시스템 프롬프트
 SYS_PROMPT = f"""
-    당신은 OpenSCENARIO XML 에디터입니다.
-    아래 메타데이터와 code_slice만 답변해줍니다.
-    
-    type: XSD 타입(ex: AddEntityAction, StopTrigger, EnvironmentAction 등)
-    scope: init/global/act/event/scenario
-    code_slice: 실제 XML 조각
-    룰 1번에 오는 코드(xml_test)들은 OpenSCENARIO XML 기본 틀입니다.
+You are an OpenSCENARIO XML Editor.  
+Users supply only lightweight “slices” in YAML form; you must merge them into a valid base scenario using the rules below.
 
-    **룰**
-    1. Scenario Condition\n```xml\n{XSD}\n```
-    2: 코드 슬라이스가 나올 때는 type, scope, target을 첫라인에 출력합니다.
-    3. scope에 따라 적절한 컨테이너(<Init><Actions>, <GlobalAction>, <Act><Actions>, <Event>, <Storyboard>)를 자동으로 찾거나 생성합니다.
-    4. 필요한 상위 노드(예: <Actions> 블록, <Trigger> 또는 <Maneuver> 등)가 없으면, 최소한의 스켈레톤을 덧붙여 code slice가 유효하도록 보완합니다.
-    5. 이미 해당 컨테이너가 존재하면 거기에만 슬라이스를 삽입하고, 중복 노드는 만들지 않습니다.
-    6: 해당하는 전체 코드가 아닌 base secnario에 들어갈 코드 조각만 출력합니다.
-    7. 질문이 들어오면 다음과 같이 대답을 가져옵니다.
+**Global Rules**  
+1. **Slice headers**  
+   Each slice must include exactly three fields before the code:  
+   - `type`: the XSD element name of the snippet (e.g. `ScenarioObject`, `ManeuverGroup`, `Private`).  
+   - `target`: **one of** `Entities`, `Init`, or `Act`, indicating which top-level section of the base scenario it belongs under.  
+   - `name`: _optional_; if there are multiple elements with the same `target`, use `name` to pick the right one (e.g. `<Act name="CutInAndBrakeAct">`).  
+
+2. **Code snippet format**  
+   The first tag in `code:` must match `target`:  
+   - `target: Entities` → code must start with `<ScenarioObject …>`  
+   - `target: Init`     → code must start with `<Private …>`  
+   - `target: Act`      → code must start with `<ManeuverGroup …>`  
+
+3. **Container insertion**  
+   - **If the `target` section exists** in the base scenario, insert your snippet under it (for `Init`, inside its `<Actions>`; for `Act`, inside its `<Actions>`; for `Entities`, directly).  
+   - **If it does not exist**, create the minimal skeleton before inserting (e.g. `<Init><Actions>…</Actions></Init>`).
+
+4. **Inline Object Definitions**
+To avoid broken or mismatched CatalogReference entries, always 
+prefer inlining full object definitions 
+(e.g. <MiscObject>, <Vehicle>, <Controller>, etc.) directly within your slice instead of referencing external catalogs.  
+
+5. **Type-to-container fallback**  
+   If you omit or mistype `target`, fall back to inserting by `type`:  
+   - `ScenarioObject` → under `<Entities>`  
+   - `Private` or any `*Action` → under `<Init><Actions>`  
+   - `ManeuverGroup` → under the first `<Act><Actions>`  
+   (and so on, following the XSD hierarchy)
+
+6. **Output**  
+   Return **only** the merged `<OpenSCENARIO>` XML, no extra text.
 """
 
 # CoT 프롬프트
-COT = f"""
+FEW_SHOT = f"""
+Q:- 100m 앞 낙석 상황을 발생시켜줘.
+A:- type: ScenarioObject
+  target: Entities
+  code:
+    <ScenarioObject name="rockfall_1">
+      <MiscObject mass="0" miscObjectCategory="obstacle" name="PE_Firewall_Orange">
+        <BoundingBox>
+          <Center x="0.5" y="0.0" z="0.5"/>
+          <Dimensions width="1.0" length="1.0" height="1.0"/>
+        </BoundingBox>
+        <Properties>
+          <Property name="scale_x" value="1.0"/>
+          <Property name="scale_y" value="1.0"/>
+          <Property name="scale_z" value="1.0"/>
+        </Properties>
+      </MiscObject>
+    </ScenarioObject>
 
-    Q: 보행자 무단횡단 하는 상황을 만들어줘.
-    A: - type: ScenarioObject
-            scope: entities
-            target: Entities
-            code:
-                <ScenarioObject name="pedestrian_1">
-                <CatalogReference catalogName="PedestrianCatalog" entryName="pedestrian_human"/>
-                </ScenarioObject>
+- type: Private
+  target: Init
+  code: |
+    <Private entityRef="rockfall_1">
+      <PrivateAction>
+        <TeleportAction>
+          <Position>
+            <RelativeWorldPosition entityRef="Ego" dx="100" dy="0" dz="0"/>
+          </Position>
+        </TeleportAction>
+      </PrivateAction>
+    </Private>
 
-            - type: Trigger
-            scope: act
-            target: CutInAndBrakeAct
-            code:
-                <Trigger name="PedestrianTrigger">
-                <ConditionGroup>
-                    <Condition name="PedestrianCrossingPos" delay="0" conditionEdge="rising">
-                    <ByPositionCondition>
-                        <Position>
-                        <RelativeWorldPosition entityRef="Ego" dx="30" dy="2" dz="0"/>
-                        </Position>
-                        <Rule>entering</Rule>
-                    </ByPositionCondition>
-                    </Condition>
-                </ConditionGroup>
-                </Trigger>
+- type: ManeuverGroup
+  target: Act
+  name: CutInAndBrakeAct
+  code: |
+    <ManeuverGroup maximumExecutionCount="1" name="RockfallAvoidanceGroup">
+      <Actors selectTriggeringEntities="false">
+        <EntityRef entityRef="Ego"/>
+      </Actors>
+      <Maneuver name="RockfallManeuver">
+        <Event name="RockfallEvent" priority="overwrite">
+          <StartTrigger>
+            <ConditionGroup>
+              <Condition name="RockfallProximity" delay="0" conditionEdge="rising">
+                <ByEntityCondition>
+                  <TriggeringEntities triggeringEntitiesRule="all">
+                    <EntityRef entityRef="rockfall_1"/>
+                  </TriggeringEntities>
+                  <EntityCondition>
+                    <RelativeDistanceCondition
+                      entityRef="rockfall_1"
+                      relativeDistanceType="euclidianDistance"
+                      freespace="true"
+                      routingAlgorithm="assignedRoute"
+                      rule="lessThan"
+                      value="10"/>
+                  </EntityCondition>
+                </ByEntityCondition>
+              </Condition>
+            </ConditionGroup>
+          </StartTrigger>
+          <Action name="BrakeForRockfall">
+            <PrivateAction>
+              <LongitudinalAction>
+                <SpeedAction>
+                  <SpeedActionDynamics dynamicsShape="step" dynamicsDimension="time" value="0"/>
+                  <SpeedActionTarget>
+                    <AbsoluteTargetSpeed value="0"/>
+                  </SpeedActionTarget>
+                </SpeedAction>
+              </LongitudinalAction>
+            </PrivateAction>
+          </Action>
+        </Event>
+      </Maneuver>
+    </ManeuverGroup>
 
-            - type: AddEntityAction
-            scope: act
-            target: CutInAndBrakeAct
-            code:
-                <Actions>
-                <AddEntityAction name="SpawnPedestrian">
-                    <EntityRef entityRef="pedestrian_1"/>
-                    <Position>
-                    <RelativeWorldPosition entityRef="Ego" dx="30" dy="2" dz="0"/>
-                    </Position>
-                    <Pedestrian miscObjectCategory="pedestrian">
-                    <BoundingBox>
-                        <Center x="0" y="0" z="0"/>
-                        <Dimensions h="1.8" w="0.5" l="0.5"/>
-                    </BoundingBox>
-                    </Pedestrian>
-                </AddEntityAction>
-                </Actions>
+Q:보행자가 도로를 천천히 침범하는 상황을 만들어줘.
+A:- type: ScenarioObject
+  target: Entities
+  code: |
+    <ScenarioObject name="pedestrian_1">
+      <Pedestrian mass="75.0" pedestrianCategory="pedestrian" name="AdultPedestrian">
+        <BoundingBox>
+          <Center x="0.0" y="0.0" z="0.0"/>
+          <Dimensions width="0.5" length="0.5" height="1.7"/>
+        </BoundingBox>
+        <Properties>
+          <Property name="walkingSpeed" value="1.5"/>
+        </Properties>
+      </Pedestrian>
+    </ScenarioObject>
 
-        """
+- type: Private
+  target: Init
+  code: |
+    <Private entityRef="pedestrian_1">
+      <PrivateAction>
+        <TeleportAction>
+          <Position>
+            <RelativeWorldPosition entityRef="Ego" dx="30" dy="2" dz="0"/>
+          </Position>
+        </TeleportAction>
+      </PrivateAction>
+    </Private>
+
+- type: ManeuverGroup
+  target: Act
+  name: CutInAndBrakeAct
+  code: |
+    <ManeuverGroup maximumExecutionCount="1" name="PedestrianCrossingGroup">
+      <Actors selectTriggeringEntities="false">
+        <EntityRef entityRef="pedestrian_1"/>
+      </Actors>
+      <Maneuver name="PedestrianCrossManeuver">
+        <Event name="PedestrianCrossEvent" priority="overwrite">
+          <StartTrigger>
+            <ConditionGroup>
+              <Condition name="BeginCrossing" delay="0" conditionEdge="rising">
+                <ByValueCondition>
+                  <SimulationTimeCondition value="2" rule="greaterThan"/>
+                </ByValueCondition>
+              </Condition>
+            </ConditionGroup>
+          </StartTrigger>
+          <Action name="WalkAcrossZebra">
+            <PrivateAction>
+              <LateralAction>
+                <LaneOffsetAction continuous="false">
+                  <LaneOffsetActionDynamics dynamicsShape="linear" continuous="false" value="3",maxLateralAcc="2.0"/>
+                  <LaneOffsetTarget>
+                    <RelativeTargetLaneOffset entityRef="pedestrian_1" value="1"/>
+                  </LaneOffsetTarget>
+                </LaneOffsetAction>
+              </LateralAction>
+            </PrivateAction>
+          </Action>
+        </Event>
+      </Maneuver>
+    </ManeuverGroup>
+"""
 
 # few-shot 프롬프트
-FEW_SHOT = f"""
-
+COT = f"""
+    내가 너한테 보낸 질문에 대한 답을 순차적으로 하나씩 생각해가면서 답변을 보내줘.
 """
 
 # least-to-most 프롬프트
 LEAST_TO_MOST = f"""
-
+  내가 너한테 보낸 질문에 대한 답을 위하여 나의 질문을 piority가 존재하는 sub problem으로 만들어주고 그 sub problem들을
+   하나씩 해결해주며 문제를 해결해줘.
 """
 
 
 PROMPT_SET = {
-    "cot": COT,
     "fs": FEW_SHOT,
+    "cot": COT,
     "ltm": LEAST_TO_MOST
 }

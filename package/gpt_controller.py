@@ -12,7 +12,7 @@ class GPTController(Controller):
         self.disturbance_path = TMP_DIR / f"test_gpt_dist_{datetime.now().strftime("%y%m%d%H%M%S")}.xosc"
         self.client = OpenAI(api_key=GPT_API)
 
-    def gen_disturbance(self, input_text):
+    def gen_disturbance(self, input_text, model="gpt-4.1-nano"):
         """
         LLM으로부터 자연어 입력을 코드 조각으로 생성하는 함수
 
@@ -22,7 +22,7 @@ class GPTController(Controller):
         """
 
         response = self.client.responses.parse(
-            model="gpt-4.1-nano",
+            model=model,
             text_format=ResponseData,
             input=[
                 {

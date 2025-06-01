@@ -1,5 +1,6 @@
 from pathlib import Path
 import os
+from typing import Literal
 
 RULE = {
     "ScenarioObject": "Entities",
@@ -7,6 +8,9 @@ RULE = {
     "GlobalAction": "Actions",
     "ManeuverGroup": "Act",
 }
+
+TYPES = Literal["ScenarioObject", "Private", "ManeuverGroup"]
+TARGETS = Literal["Entities", "Init", "Act"]
 
 SIM_NAME = "esmini" # or "carla" or etc.
 

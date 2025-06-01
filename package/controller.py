@@ -7,8 +7,9 @@ import re
 from pydantic import BaseModel
 
 class MetaData(BaseModel):
-    type: str
-    scope: str
+    type: TYPES
+    target: TARGETS
+    name: str
     code: str
 
 class ResponseData(BaseModel):
@@ -30,6 +31,7 @@ class Controller:
         in_root : 입력 시나리오의 루트 XMLElement 객체, <OpenSCENARIO>
         dis_tree : 외란 시나리오의 XMLElementTree 객체
         dis_root : 외란 시나리오의 루트 XMLElement 객체, <OpenSCENARIO>
+        response_data : 
 
         client : OpenAI 클라이언트 객체
         user_prompt : user 프롬프트에서 적용할 프롬프팅 기법
@@ -45,28 +47,29 @@ class Controller:
         self.base_scenario = ET.tostring(self.in_root).decode()
         self.dis_tree = None
         self.dis_root = None
+        self.response_data = None
 
         self.client = None
         self.user_prompt = ""
         for arg in args:
             self.user_prompt += PROMPT_SET[arg.lower()]
 
-    def gen_disturbance(self, input_text):
+    def gen_disturbance(self, input_text, model):
         """
         LLM으로부터 자연어 입력을 코드 조각으로 생성하는 함수
 
         코드 조각의 출력 파일 예시:
             <OpenSCENARIO>
-            <ScenarioObject name="rock_1">
+                <ScenarioObject name="rock_1">
+                    ...
+                </ScenarioObject>
+                <Private entityRef="Ego">
+                    ...
+                </Private>
+                <ManeuverGroup name="MyManeuver">
+                    ...
+                </ManeuverGroup>
                 ...
-            </ScenarioObject>
-            <Private entityRef="Ego">
-                ...
-            </Private>
-            <ManeuverGroup name="MyManeuver">
-                ...
-            </ManeuverGroup>
-            ...
             </OpenSCENARIO>
         """
         pass
@@ -75,6 +78,7 @@ class Controller:
         out_xosc = "<OpenSCENARIO>\n"
         for data in response_parsed:
             out_xosc += data.code
+            print(f"type: {data.type}, target: {data.target}, name: {data.name}")
         out_xosc += "\n</OpenSCENARIO>"
 
         self.dis_root = ET.fromstring(out_xosc)
@@ -97,12 +101,22 @@ class Controller:
 
             if elem is not None:
                 elem.getparent().append(child)
+
+        # for item in self.response_data:
+        #     item.target
+        #     if (elem := self.in_root.find(f".//{item.target}")) is not None:
+        #         elem.append(item.code)
+        #         pass
+        #     else:
+        #         elem = self.in_root.find(f".//{item.scope}//{item.target}")
         
         ET.indent(self.in_root, space="  ")
         self.in_tree.write(self.output_path, pretty_print=True, encoding="utf-8", xml_declaration=True)
         print(f"Scenario file written to {self.output_path}")
 
     def _extract_xml_blocks(self, text):
+        # decrepted
+        return
         """
         주어진 text에서 ``` ... ``` 로 감싸진 블록의 내용만 추출하여
         리스트로 반환합니다.

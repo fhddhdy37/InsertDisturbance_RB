@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OpenSCENARIO>
+   <FileHeader revMajor="1"
+               revMinor="1"
+               date="2021-08-24T10:00:00"
+               description="Demonstrate ACC controller"
+               author="esmini-team"/>
+   <CatalogLocations>
+      <VehicleCatalog>
+        <Directory path="./src/esmini/Catalogs/Vehicles"/>
+      </VehicleCatalog>
+      <ControllerCatalog>
+	     <Directory path="./src/esmini/Catalogs/Controllers"/>
+	  </ControllerCatalog>
+     <PedestrianCatalog>
+	     <Directory path="./src/esmini/Catalogs/Pedestrians"/>
+	  </PedestrianCatalog>
+   </CatalogLocations>
+   <RoadNetwork>
+      <LogicFile filepath="./src/esmini/straight_500m_2lane.xodr"/>
+   </RoadNetwork>
+   <Entities>
+      <ScenarioObject name="Ego">
+        <CatalogReference catalogName="VehicleCatalog" entryName="car_white"/>
+         <ObjectController>
+            <Controller name="ACCController">
+                <Properties>
+                    <Property name="timeGap" value="1.0" />
+                    <Property name="mode" value="override" />
+                    <Property name="setSpeed" value="33.3" />
+                </Properties>
+            </Controller>            
+         </ObjectController>         
+      </ScenarioObject>
+   </Entities>
+   <Storyboard>
+      <Init>
+         <Actions>
+            <Private entityRef="Ego">
+               <PrivateAction>
+                  <TeleportAction>
+                     <Position>
+                        <LanePosition roadId="1" laneId="-1" offset="0" s="0"/>
+                     </Position>
+                  </TeleportAction>
+               </PrivateAction>
+               <PrivateAction>
+                  <LongitudinalAction>
+                     <SpeedAction>
+                        <SpeedActionDynamics dynamicsShape="step" dynamicsDimension="time" value="0.0"/>
+                        <SpeedActionTarget>
+                           <AbsoluteTargetSpeed value="17"/>
+                        </SpeedActionTarget>
+                     </SpeedAction>
+                  </LongitudinalAction>
+               </PrivateAction>
+               <PrivateAction>
+                  <ControllerAction>
+                    <ActivateControllerAction longitudinal="true" lateral="false" />
+                  </ControllerAction>
+               </PrivateAction>
+            </Private>
+         </Actions>
+      </Init>
+      <Story name="CutInAndBrakeStory">
+         <Act name="CutInAndBrakeAct">
+            <ManeuverGroup maximumExecutionCount="1" name="EgoSpeedChange">
+               <Actors selectTriggeringEntities="false">
+                  <EntityRef entityRef="Ego"/>
+               </Actors>
+               <Maneuver name="EgoSpeedManeuver">
+                  <Event name="EgoSpeedEvent" priority="override">
+                     <Action name="EgoSpeedAction">
+                        <PrivateAction>
+                           <LongitudinalAction>
+                              <SpeedAction>
+                                 <SpeedActionDynamics dynamicsShape="step" value="0" dynamicsDimension="time"/>
+                                 <SpeedActionTarget>
+                                    <AbsoluteTargetSpeed value="1"/>
+                                 </SpeedActionTarget>
+                              </SpeedAction>
+                           </LongitudinalAction>
+                        </PrivateAction>
+                     </Action>
+                     <StartTrigger>
+                        <ConditionGroup>
+                           <Condition name="EgoSpeedCondition" delay="0" conditionEdge="rising">
+                             <ByValueCondition>
+                                <SimulationTimeCondition value="2" rule="greaterThan"/>
+                             </ByValueCondition>
+                           </Condition>
+                        </ConditionGroup>
+                     </StartTrigger>
+                  </Event>
+                  <Event name="EgoSpeedEvent" priority="override">
+                     <Action name="EgoSpeedAction">
+                        <PrivateAction>
+                           <LongitudinalAction>
+                              <SpeedAction>
+                                 <SpeedActionDynamics dynamicsShape="step" value="0" dynamicsDimension="time"/>
+                                 <SpeedActionTarget>
+                                    <AbsoluteTargetSpeed value="8.3"/>
+                                 </SpeedActionTarget>
+                              </SpeedAction>
+                           </LongitudinalAction>
+                        </PrivateAction>
+                     </Action>
+                     <StartTrigger>
+                        <ConditionGroup>
+                           <Condition name="EgoSpeedCondition" delay="0" conditionEdge="rising">
+                             <ByValueCondition>
+                                <SimulationTimeCondition value="10" rule="greaterThan"/>
+                             </ByValueCondition>
+                           </Condition>
+                        </ConditionGroup>
+                     </StartTrigger>
+                  </Event>
+               </Maneuver>
+            </ManeuverGroup>
+            <StartTrigger>
+               <ConditionGroup>
+                  <Condition name="CutInActStart" delay="0" conditionEdge="none">
+                     <ByValueCondition>
+                        <SimulationTimeCondition value="0" rule="greaterThan"/>
+                     </ByValueCondition>
+                  </Condition>
+               </ConditionGroup>
+            </StartTrigger>
+         </Act>
+      </Story>
+      <StopTrigger>
+         <ConditionGroup>
+               <Condition name="EndScenario" delay="0" conditionEdge="none">
+                  <ByValueCondition>
+                     <SimulationTimeCondition value="60" rule="greaterThan" />
+                  </ByValueCondition>
+               </Condition>
+         </ConditionGroup>
+      </StopTrigger>
+   </Storyboard>
+</OpenSCENARIO>

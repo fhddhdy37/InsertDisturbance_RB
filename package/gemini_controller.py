@@ -15,7 +15,7 @@ class GeminiController(Controller):
             base_url="https://generativelanguage.googleapis.com/v1beta/openai/"
             )
 
-    def gen_disturbance(self, input_text):
+    def gen_disturbance(self, input_text, model="gemini-2.0-flash"):
         """
         LLM으로부터 자연어 입력을 코드 조각으로 생성하는 함수
 
@@ -25,8 +25,9 @@ class GeminiController(Controller):
         """
 
         response = self.client.beta.chat.completions.parse(
-            model="gemini-2.0-flash",
+            model=model,
             response_format=ResponseData,
+            temperature=0,
             messages=[
                 {
                     "role": "system", 
@@ -46,6 +47,7 @@ class GeminiController(Controller):
         )
 
         print(response.choices[0].message.parsed)
-        response_parsed = response.choices[0].message.parsed.data
+        self.response_data = response.choices[0].message.parsed.data
         
-        self._write_disturbance(response_parsed)
+        self._write_disturbance(self.response_data)
+        

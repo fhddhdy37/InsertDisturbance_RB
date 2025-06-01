@@ -177,5 +177,7 @@ trash/
 generated/
 log.txt
 
+src/esmini/out/
+
 test_*.py
 test_*.xosc
