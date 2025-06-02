@@ -1,34 +1,48 @@
-from package import *
-from package.gpt_controller import GPTController
-from package.gemini_controller import GeminiController
+from GD import config as cf
+from GD.controller import GPTController, GeminiController
+from GD.preprocessing import preprocessing
 
 from scenariogeneration import xosc, esmini
 
-if __name__ == "__main__":
-    mode = "gemini"             # or "gpt"
-    model = "gemini-2.5-flash-preview-05-20"  # "gpt-4.1-nano" or etc.
+from pathlib import Path
+from datetime import datetime
+import traceback
 
-    input_file = "straight_500m.xosc"       # 입력 시나리오 파일명
-    output_file = "in_test.xosc"            # 최종 출력 시나리오 파일명
-    input_text = "전방 100m 보행자 무단횡단"       # 외란 상황에 따라 다르게 입력
-    response_count = 1
+if __name__ == "__main__":
+    cf.TIME = datetime.now().strftime("%y%m%d%H%M%S")
+
+    mode = "gemini"
+    model = "gemini-2.5-flash-preview-05-20"
+    # mode = "gpt"
+    # model = "gpt-4.1-nano"
+
+    input_file = "your scenario file path"
+    output_file = f"gen_scenario_{cf.TIME}.xosc"
+    input_text = "전방 100m에 낙석 발생"
+    
+    cf.INPUT_PATH = Path(input_file).resolve()
+    cf.INPUT_DIR = cf.INPUT_PATH.parent
+    cf.OUTPUT_PATH = cf.INPUT_DIR / output_file
+
+    preprocessing()
 
     if mode == "gpt":
-        controller = GPTController(input_file, output_file, "fs", "cot")
+        controller = GPTController()
     elif mode == "gemini":
-        controller = GeminiController(input_file, output_file, "fs", "cot")
+        controller = GeminiController()
     else:
-        raise ValueError("mode is supported only \"gemini\" or \"gpt\"")
+        raise ValueError("mode is supported only \"gemini\" or \"gpt\"")        
     
-    while True:
-        controller.gen_disturbance(input_text, model)
+    while controller.response_count < 20:
+        print(controller.response_count)
+        controller.gen_disturbance(input_text, model, "fs")
         controller.insert_scenario()
 
-        if controller.is_valid():
+        try:
             sce = xosc.ParseOpenScenario(controller.output_path)
-            esmini(sce, ESMINI_PATH, generation_path=OUT_DIR)
+        except Exception as e:
+            controller.err = traceback.format_exc()
+            continue
+        else:
+            esmini(sce, cf.ESMINI_PATH, generation_path=cf.GENERATION_DIR)
             break
-        break
-        response_count += 1
-        
-        

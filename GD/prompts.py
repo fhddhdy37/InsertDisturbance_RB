@@ -7,10 +7,10 @@ CoT, few-shot, least-to-most
 """
 
 
-from package import XSD_FILE
+from GD.config import XSD_PATH
 
 XSD = "XML Schema data"
-with open(XSD_FILE, "r",encoding='utf-8') as f:
+with open(XSD_PATH, "r",encoding='utf-8') as f:
     XSD = f.read()
 
 # 시스템 프롬프트
@@ -207,7 +207,7 @@ LEAST_TO_MOST = f"""
 """
 
 
-PROMPT_SET = {
+PROMPTING_SET = {
     "fs": FEW_SHOT,
     "cot": COT,
     "ltm": LEAST_TO_MOST
