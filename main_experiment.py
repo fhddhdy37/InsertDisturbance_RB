@@ -34,9 +34,9 @@ if __name__ == "__main__":
     # ex_prompts = [("fs",), ("cot", ), ("ltm", ), ("fs", "cot"), ("fs", "ltm")]
     promptings = ("fs", )
 
-    dst_dir = f"{cf.LOG_DIR}_{"_".join(promptings)}"
-    os.rename(cf.LOG_DIR, f"{cf.LOG_DIR}_{"_".join(promptings)}")
-    cf.LOG_DIR = Path(dst_dir)
+    log_dir = f"{cf.LOG_DIR}_{mode}_{"_".join(promptings)}"
+    os.rename(cf.LOG_DIR, log_dir)
+    cf.LOG_DIR = Path(log_dir)
     result_path = cf.LOG_DIR / "result.csv"
     
 # model setting start
@@ -111,14 +111,24 @@ if __name__ == "__main__":
                         success_flag = False
                         err_msg = traceback.format_exc()
                     else:
-                        video_path = str(cf.LOG_DIR / "".join(input_text.split())) + f"_{i:02}_{iii:02}.mp4"
-                        cmd = f"ffmpeg -f image2 -framerate 120 -i screen_shot_%5d.tga -c:v libx264 -vf format=yuv420p -crf 20 {video_path}"
-                        result = subprocess.run(cmd)
+                        endline = ""
+                        with open(log_path, "r", encoding="utf-8") as f:
+                            endline = f.readlines()[-1]
+                        if endline.__contains__("[error]"):
+                            success_flag = False
+                            log_file = f"log_{cf.DATE}_{model}_{"_".join(promptings)}_{i:02}_{iii:02}_{"success" if success_flag else "fail"}.txt"
+                            dst_log_path = cf.LOG_DIR / log_file
+                            os.rename(log_path, dst_log_path)
 
-                        if result.returncode != 0:
-                            print("An error occurred while trying to save the video")
-                        for f in Path(".").glob("screen_shot_*.tga"):
-                            f.unlink()
+                if success_flag:
+                    video_path = str(cf.LOG_DIR / "".join(input_text.split())) + f"_{i:02}_{iii:02}.mp4"
+                    cmd = f"ffmpeg -f image2 -framerate 120 -i screen_shot_%5d.tga -c:v libx264 -vf format=yuv420p -crf 20 {video_path}"
+                    result = subprocess.run(cmd)
+
+                    if result.returncode != 0:
+                        print("An error occurred while trying to save the video")
+                    for f in Path(".").glob("screen_shot_*.tga"):
+                        f.unlink()
 
                 if not success_flag:
                     log_file = f"log_{cf.DATE}_{model}_{"_".join(promptings)}_{i:02}_{iii:02}_{"success" if success_flag else "fail"}.txt"
