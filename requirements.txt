@@ -1,3 +1,4 @@
 scenariogeneration
 openai
 pydantic
+pandas

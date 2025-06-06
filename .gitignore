@@ -176,10 +176,15 @@ pyrightconfig.json
 trash/
 trash_*/
 generated/
-log.txt
+logs/
+log*.txt
 
 src/esmini/out/
+src/esmini/01*.xosc
+src/esmini/02*.xosc
+src/esmini/03*.xosc
 
-test_*.py
-test_*.xosc
+screen_shot*
+
+test_*
 gen_*.xosc

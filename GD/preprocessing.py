@@ -1,19 +1,18 @@
-from GD import config as cf
-
 from typing import Literal
+
 from lxml import etree as ET
 from pydantic import create_model
+
+from GD import config as cf
 
 def preprocessing():
     tree = ET.parse(cf.INPUT_PATH)
     root = tree.getroot()
-    # name_dict = {}
     names = ["None"]
 
     for target in cf.TARGETS.__args__:
         for elem in root.findall(f".//{target}"):
             if name := elem.attrib.get("name"):
-                # name_dict[name] = elem.tag
                 names.append(name)
     cf.NAMES = Literal[tuple(names)]
 

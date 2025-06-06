@@ -18,6 +18,7 @@
    </CatalogLocations>
    <RoadNetwork>
       <LogicFile filepath="./src/esmini/straight_500m.xodr"/>
+      <SceneGraphFile filepath="./src/esmini/straight_500m.osgb"/>
    </RoadNetwork>
    <Entities>
       <ScenarioObject name="Ego">
@@ -132,7 +133,7 @@
          <ConditionGroup>
                <Condition name="EndScenario" delay="0" conditionEdge="none">
                   <ByValueCondition>
-                     <SimulationTimeCondition value="60" rule="greaterThan" />
+                     <SimulationTimeCondition value="15" rule="greaterThan" />
                   </ByValueCondition>
                </Condition>
          </ConditionGroup>

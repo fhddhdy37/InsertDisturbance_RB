@@ -1,17 +1,17 @@
-from pathlib import Path
 import os
 from typing import Literal
+from pathlib import Path
+from datetime import datetime
+
 from pydantic import BaseModel
 
-# path related setting
-TIME = ""
-
+# path related config
 INPUT_PATH = ""
 INPUT_DIR = ""
 OUTPUT_PATH = ""
 
-BASE_PATH = Path(__file__).resolve()
-SRC_DIR = BASE_PATH.parent.parent / "src"
+BASE_PATH = Path(__file__).resolve().parent.parent
+SRC_DIR = BASE_PATH / "src"
 DIST_DIR = SRC_DIR / "disturbance"
 TMP_DIR = DIST_DIR / "tmp"
 GENERATION_DIR = SRC_DIR / "generated"
@@ -23,16 +23,19 @@ if not GENERATION_DIR.is_dir():
 
 XSD_PATH = SRC_DIR / "xsd" / "OpenSCENARIO-1.2.xsd"
 
-# model related setting
-RULE = {
-    "ScenarioObject": "Entities",
-    "GlobalAction": "Actions",
-    "Private": "Actions",
-    "ManeuverGroup": "Act",
-}
+# experiment related config
+DATE = datetime.now().strftime("%Y%m%d_%H%M%S")
 
-TYPES = Literal["ScenarioObject", "Private", "ManeuverGroup"]
-TARGETS = Literal["Entities", "Init", "Act"]
+LOG_BASE = SRC_DIR / "logs"
+LOG_DIR = LOG_BASE / DATE
+if not LOG_BASE.is_dir():
+    os.mkdir(LOG_BASE)
+if not LOG_DIR.is_dir():
+    os.mkdir(LOG_DIR)
+
+# model related config
+TYPES = Literal["ScenarioObject", "Private", "GlobalAction", "ManeuverGroup"]
+TARGETS = Literal["Entities", "Actions", "Act"]
 NAMES = None
 
 class MetaData(BaseModel):
@@ -45,8 +48,7 @@ class ResponseData(BaseModel):
     data: list[MetaData]
 
 
-# personal setting
+# personal config
 GPT_API = "your gpt api key"
 GEMINI_API = "your gemini api key"
 ESMINI_PATH = Path("your esmini path")
-

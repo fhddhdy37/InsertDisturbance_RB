@@ -1,18 +1,18 @@
-from GD import config as cf
-from GD.prompts import *
+import copy
 
+import xmlschema
+from xmlschema.validators.exceptions import XMLSchemaValidationError
+from lxml import etree as ET
 from openai import OpenAI
 
-from lxml import etree as ET
-from xmlschema.validators.exceptions import XMLSchemaValidationError
-import xmlschema
-import traceback
+from GD import config as cf
+from GD.prompts import *
 
 class Controller:
     def __init__(self):
         self.input_path = cf.INPUT_PATH
         self.output_path = cf.OUTPUT_PATH
-        self.dist_path = cf.TMP_DIR / f"test_{self.__class__.__name__}_{cf.TIME}.xosc"
+        self.dist_path = cf.TMP_DIR / f"test_{self.__class__.__name__}_{cf.DATE}.xosc"
         self.schema = xmlschema.XMLSchema(cf.XSD_PATH)
 
         self.in_tree = ET.parse(self.input_path)
@@ -25,37 +25,16 @@ class Controller:
         self.messages = []
         self.response_msg = None
         self.response_data = None
-        self.response_count = 0
         self.err = None
 
     def gen_disturbance(self, input_text, model, *prompting):
-        self._set_prompt(input_text, prompting)
+        prompt_engeneering = ""
+        for prompt in prompting:
+            prompt_engeneering += PROMPTING_SET[prompt.lower()]
         response = self.client.beta.chat.completions.parse(
             model=model,
             response_format=cf.ResponseData,
-            temperature=0.5,
-            messages=self.messages
-        )
-        self.response_msg = response.choices[0].message.parsed
-        print(self.response_msg)
-        self.response_data = response.choices[0].message.parsed.data
-        
-        response = self.client.chat.completions
-
-        try:
-            self._write_disturbance()
-        except ET.XMLSyntaxError as e:
-            self.err = traceback.format_exc()
-            self.gen_disturbance(input_text, model, prompting)
-
-    def _set_prompt(self, input_text, prompting):
-        self.response_count += 1
-        if self.response_count == 1:
-            prompt_engeneering = ""
-            for prompt in prompting:
-                prompt_engeneering += PROMPTING_SET[prompt.lower()]
-
-            self.messages = [
+            messages=[
                 {
                     "role": "system",
                     "content": SYS_PROMPT
@@ -65,48 +44,25 @@ class Controller:
                     "content": f"""
                                 {prompt_engeneering}
 
-                                Q: {input_text}
+                                real Q: {input_text}
                                 base scenario:
                                 {self.base_scenario}
                                 """
                 }
             ]
-        elif self.response_count == 2:
-            self.messages.append(
-                {
-                    "role": "assistant",
-                    "content": str(self.response_msg)
-                }
-            )
-            self.messages.append(
-                {
-                    "role": "user",
-                    "content": f"""
-                                The following error occurred in your code:
-                                Error message:
-                                {self.err}
-                                """
-                }
-            )
-        elif self.response_count > 2:
-            self.messages[2] = {
-                    "role": "assistant",
-                    "content": str(self.response_msg)
-            }
-            self.messages[3] = {
-                    "role": "user",
-                    "content": f"""
-                                The following error occurred in your code:
-                                Error message:
-                                {self.err}
-                                """                
-            }
+        )
+        self.response_msg = response.choices[0].message.parsed
+        self.response_data = response.choices[0].message.parsed.data
+        # print(self.response_msg)
+
+        self._write_disturbance()
+        self._insert_scenario()
 
     def _write_disturbance(self):
         out_xosc = "<OpenSCENARIO>\n"
         for data in self.response_data:
             out_xosc += data.code
-            print(f"type: {data.type}, target: {data.target}, name: {data.name}")
+            # print(f"type: {data.type}, target: {data.target}, name: {data.name}")
         out_xosc += "\n</OpenSCENARIO>"
 
         self.dist_root = ET.fromstring(out_xosc)
@@ -115,21 +71,23 @@ class Controller:
         self.dist_tree.write(self.dist_path, pretty_print=True, encoding="utf-8", xml_declaration=True)
         print(f"Disturbance file written to {self.dist_path}")
 
-    def insert_scenario(self):
+    def _insert_scenario(self):
+        root_copy = copy.deepcopy(self.in_root)
+        tree_copy = ET.ElementTree(root_copy)
         for item in self.response_data:
             code = ET.fromstring(item.code)
             if item.name == "None":
-                parent = self.in_root.find(f".//{item.target}")
+                parent = root_copy.find(f".//{item.target}")
             else:
-                parent = self.in_root.find(f".//{item.target}[@name='{item.name}']")
+                parent = root_copy.find(f".//{item.target}[@name='{item.name}']")
 
             if item.type == "ScenarioObject" or item.type == "Private":
                 parent.append(code)
             elif item.type == "GlobalAction" or item.type == "ManeuverGroup":
                 parent.insert(0, code)
 
-        ET.indent(self.in_root, space="  ")
-        self.in_tree.write(self.output_path, pretty_print=True, encoding="utf-8", xml_declaration=True)
+        ET.indent(root_copy, space="  ")
+        tree_copy.write(self.output_path, pretty_print=True, encoding="utf-8", xml_declaration=True)
         print(f"Scenario file written to {self.output_path}")
 
     def is_valid(self):
