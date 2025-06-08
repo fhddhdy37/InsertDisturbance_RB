@@ -28,4 +28,4 @@
 2. `src/logs/` 에 각 실험 당 로그파일 생성
 3. `./experiment/results/` 에 실험 결과를 .csv 파일로 저장
 
-* [실험 결과](/experiment_results.md)데이터는 제공되나 생성된 데이터는 제공되지 않음
+* [실험 결과](/experiment_results.md) 데이터는 제공되나 생성된 데이터는 제공되지 않음

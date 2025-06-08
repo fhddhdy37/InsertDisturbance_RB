@@ -2,18 +2,16 @@
 
 | 모델    |  프롬프팅       | 결과 파일                                                     |
 | -----   | -------------- | ------------------------------------------------------------- |
-| gemini  | few-shot       | [파일](experiment/results/20250606_175226_gemini_fewshot.csv)    |
-|         | cot            | [파일](experiment/results/20250606_223958_gemini_cot.csv)        |
-|         | least-to-most  | [파일](experiment/results/20250607_000606_gemini_ltm.csv)        |
-|         | fs + cot       | [파일](experiment/results/20250607_194152_gemini_fs_cot.csv)     |
+| gemini  | few-shot       | [파일](experiment/results/20250608_112612_gemini_fs.csv)    |
+|         | cot            | [파일](experiment/results/20250608_121921_gemini_cot.csv)        |
+|         | least-to-most  | [파일](experiment/results/20250608_124245_gemini_ltm.csv)        |
+|         | fs + cot       | [파일](experiment/results/20250608_124245_gemini_fs_cot.csv)     |
 |         | fs + ltm       | [파일](experiment/results/20250608_000042_gemini_fs_ltm.csv)    |
-|         | fs + cot + ltm |                                                                  |
-| gpt     | few-shot       | [파일1](experiment/results/20250607_013640_gpt_fs.csv), [파일2](experiment/results/20250607_023657_gpt_fs.csv)    |
-|         | cot            | [파일](experiment/results/20250607_044559_gpt_cot.csv)         |
-|         | least-to-most  | [파일](experiment/results/20250607_115141_gpt_ltm.csv)         |
-|         | fs + cot       | [파일](experiment/results/20250607_120647_gpt_fs_cot.csv)      |
-|         | fs + ltm       | [파일](experiment/results/20250607_134344_gpt_fs_ltm.csv)      |
-|         | fs + cot + ltm | [파일](experiment/results/20250607_150110_gpt_fs_cot_ltm.csv)  |
+| gpt     | few-shot       | [파일](experiment/results/20250608_005053_gpt_fs.csv)    |
+|         | cot            | [파일](experiment/results/20250608_005053_gpt_cot.csv)  |
+|         | least-to-most  | [파일](experiment/results/20250608_005053_gpt_ltm.csv)  |
+|         | fs + cot       | [파일](experiment/results/20250608_005053_gpt_fs_cot.csv)  |
+|         | fs + ltm       | [파일](experiment/results/20250608_144617_gpt_fs_ltm.csv)  |
 
 
 # result.csv 속성 설명
