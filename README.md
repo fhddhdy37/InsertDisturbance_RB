@@ -14,6 +14,11 @@
      ESMINI_PATH : esmini 설치 경로 (ex: ~/esmini-demo)
      ```
 
+4. 녹화가 필요한 경우 (선택)
+   * [ffmpeg](https://ffmpeg.org/download.html) 설치
+   * 본인 OS에 맞게 설치
+   * 설치 경로를 환경변수에 추가
+
 # 실행 방법
 ---
 1. `main.py` 실행
