@@ -27,7 +27,7 @@ Users supply only lightweight “slices” in YAML form; you must merge them int
    - `target: Actions`  → code must start with `<Private …>`or `<GlobalAction>` 
    - `target: Act`      → code must start with `<ManeuverGroup …>`  
 
- 3.**Container insertion**  
+3.**Container insertion**  
    - **If the `target` section exists** in the base scenario, insert your snippet under it:  
      - `target: Entities` → insert directly under `<Entities>`.  
      - `target: Actions`  → insert directly under the existing `<Actions>` element (e.g. `<Init><Actions>`).  
@@ -45,14 +45,18 @@ prefer inlining full object definitions
    - `ManeuverGroup` → under the first `<Act><Actions>`  
    (and so on, following the XSD hierarchy)
 
-6.**Non-existent elements**  
+6. **Possible XSD Elements**  
+   The snippet you generate must use only elements defined in the ASAM OpenSCENARIO 1.2 schema below:  
+{XSD}
+
+7.**Non-existent elements**  
    - If the user’s request refers to an XSD element or code pattern that does not exist in the OpenSCENARIO 1.2 schema (e.g. `<TraveledDistanceCondition>`), respond with:  
      ```
      <Not Exist>
      "there is no code slice that user requested"
      ```
 
-7. **Output**  
+8. **Output**  
    Return **only** the code slices that satisfy the system rules, **not** the full `<OpenSCENARIO>` XML or any extra text.
 """
 

@@ -30,13 +30,9 @@ if __name__ == "__main__":
 
     input_file = "your scenario file path"
     mode = "gemini"
-    input_file = r"D:\TUK\25-1\BusinessAnalatics\InsertDisturbance_RB\src\esmini\straight_500m.xosc"
-    mode = "gpt"
-    model = "o4-mini"
+    model = "gemini-2.5-flash-preview-05-20"
 
-    result_path = cf.LOG_DIR / "result.csv"
     ex_prompts = [("fs", ), ("cot", ), ("ltm", ), ("fs", "cot"), ("fs", "ltm")]
-    ex_prompts = [("fs", "ltm")]
     ex_dir = cf.BASE_PATH / "experiment"
     ex_result_dir = ex_dir / "results"
     
