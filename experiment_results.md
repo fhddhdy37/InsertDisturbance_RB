@@ -2,16 +2,16 @@
 
 | 모델    |  프롬프팅       | 결과 파일                                                     |
 | -----   | -------------- | ------------------------------------------------------------- |
-| gemini  | few-shot       | [파일](experiment/results/20250608_112612_gemini_fs.csv)    |
-|         | cot            | [파일](experiment/results/20250608_121921_gemini_cot.csv)        |
-|         | least-to-most  | [파일](experiment/results/20250608_124245_gemini_ltm.csv)        |
-|         | fs + cot       | [파일](experiment/results/20250608_124245_gemini_fs_cot.csv)     |
-|         | fs + ltm       | [파일](experiment/results/20250608_000042_gemini_fs_ltm.csv)    |
-| gpt     | few-shot       | [파일](experiment/results/20250608_005053_gpt_fs.csv)    |
-|         | cot            | [파일](experiment/results/20250608_005053_gpt_cot.csv)  |
-|         | least-to-most  | [파일](experiment/results/20250608_005053_gpt_ltm.csv)  |
-|         | fs + cot       | [파일](experiment/results/20250608_005053_gpt_fs_cot.csv)  |
-|         | fs + ltm       | [파일](experiment/results/20250608_144617_gpt_fs_ltm.csv)  |
+| gemini  | few-shot       | [파일](experiment/results/20250608_170253_gemini_fs.csv)    |
+|         | cot            | [파일](experiment/results/20250608_174954_gemini_cot.csv)    |
+|         | least-to-most  | [파일](experiment/results/20250608_185034_gemini_ltm.csv)    |
+|         | fs + cot       | [파일](experiment/results/20250608_185034_gemini_fs_cot.csv)    |
+|         | fs + ltm       | [파일](experiment/results/20250608_185034_gemini_fs_ltm.csv)    |
+| gpt     | few-shot       | [파일](experiment/results/20250608_161254_gpt_fs.csv)    |
+|         | cot            | [파일](experiment/results/20250608_172748_gpt_cot.csv)  |
+|         | least-to-most  | [파일](experiment/results/20250608_172748_gpt_ltm.csv)  |
+|         | fs + cot       | [파일](experiment/results/20250608_172748_gpt_fs_cot.csv)  |
+|         | fs + ltm       | [파일](experiment/results/20250608_203143_gpt_fs_ltm.csv)  |
 
 
 # result.csv 속성 설명
