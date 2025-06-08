@@ -18,6 +18,7 @@
    </CatalogLocations>
    <RoadNetwork>
       <LogicFile filepath="./src/esmini/straight_500m_2lane.xodr"/>
+      <SceneGraphFile filepath="./src/esmini/straight_500m.osgb"/>
    </RoadNetwork>
    <Entities>
       <ScenarioObject name="Ego">

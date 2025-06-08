@@ -53,7 +53,7 @@ prefer inlining full object definitions
      ```
 
 7. **Output**  
-   Return **only** the merged `<OpenSCENARIO>` XML, no extra text.
+   Return **only** the code slices that satisfy the system rules, **not** the full `<OpenSCENARIO>` XML or any extra text.
 """
 
 # Few-shot 프롬프트
@@ -62,6 +62,7 @@ FEW_SHOT="""
 Q:- 100m 앞 낙석 상황을 발생시켜줘.
 A:- type: ScenarioObject
   target: Entities
+  name: None
   code:
     <ScenarioObject name="rockfall_1">
       <MiscObject mass="0" miscObjectCategory="obstacle" name="PE_Firewall_Orange">
@@ -79,6 +80,7 @@ A:- type: ScenarioObject
 
 - type: Private
   target: Actions
+  name: None
   code: |
     <Private entityRef="rockfall_1">
       <PrivateAction>
@@ -139,6 +141,7 @@ A:- type: ScenarioObject
 Q:보행자가 도로를 천천히 침범하는 상황을 만들어줘.
 A:- type: ScenarioObject
   target: Entities
+  name: None
   code: |
     <ScenarioObject name="pedestrian_1">
       <Pedestrian mass="75.0" pedestrianCategory="pedestrian" name="AdultPedestrian">
@@ -154,6 +157,7 @@ A:- type: ScenarioObject
 
 - type: Private
   target: Actions
+  name: None
   code: |
     <Private entityRef="pedestrian_1">
       <PrivateAction>

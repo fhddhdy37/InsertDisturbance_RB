@@ -30,8 +30,6 @@ LOG_BASE = SRC_DIR / "logs"
 LOG_DIR = LOG_BASE / DATE
 if not LOG_BASE.is_dir():
     os.mkdir(LOG_BASE)
-if not LOG_DIR.is_dir():
-    os.mkdir(LOG_DIR)
 
 # model related config
 TYPES = Literal["ScenarioObject", "Private", "GlobalAction", "ManeuverGroup"]

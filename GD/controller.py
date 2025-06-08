@@ -81,10 +81,7 @@ class Controller:
             else:
                 parent = root_copy.find(f".//{item.target}[@name='{item.name}']")
 
-            if item.type == "ScenarioObject" or item.type == "Private":
-                parent.append(code)
-            elif item.type == "GlobalAction" or item.type == "ManeuverGroup":
-                parent.insert(0, code)
+            parent.append(code)
 
         ET.indent(root_copy, space="  ")
         tree_copy.write(self.output_path, pretty_print=True, encoding="utf-8", xml_declaration=True)
